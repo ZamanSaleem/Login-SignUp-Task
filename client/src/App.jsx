@@ -2,7 +2,7 @@ import AdminLayout from "./components/admin-view/layout"
 import AuthLayout from "./components/auth/layout"
 import AuthLogin from "./pages/auth/login"
 import AuthRegister from "./pages/auth/register"
-import { Routes, Route } from "react-router-dom"
+import { Routes, Route, Navigate } from "react-router-dom"
 import CheckAuth from "./components/common/check-auth"
 import { useDispatch, useSelector } from "react-redux"
 import { useEffect } from "react"
@@ -36,10 +36,20 @@ function App() {
     <div className="flex flex-col overflow-hidden bg-white">
  
       <Routes>
+        {/* Root route - redirect based on auth status */}
+        <Route 
+          path="/" 
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user} isLoading={isLoading}>
+              {isAuthenticated ? <Navigate to="/admin/home" replace /> : <Navigate to="/auth/login" replace />}
+            </CheckAuth>
+          } 
+        />
+
         <Route 
           path="/auth" 
           element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+            <CheckAuth isAuthenticated={isAuthenticated} user={user} isLoading={isLoading}>
               <AuthLayout/>
             </CheckAuth>
           }>
@@ -50,7 +60,7 @@ function App() {
         <Route
           path="/admin" 
           element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+            <CheckAuth isAuthenticated={isAuthenticated} user={user} isLoading={isLoading}>
               <AdminLayout/>
             </CheckAuth>
         }>
@@ -61,6 +71,16 @@ function App() {
           <Route path="location" element={<Location/>} />
           <Route path="graph" element={<Graph/>} />
         </Route>  
+
+        {/* Catch-all route for undefined paths */}
+        <Route 
+          path="*" 
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user} isLoading={isLoading}>
+              <Navigate to="/" replace />
+            </CheckAuth>
+          } 
+        />
 
       </Routes>
 
